@@ -1,0 +1,17 @@
+{
+  "name": "but-flow",
+  "description": "GitButler CLI workflow - Virtual branches, parallel development, task scheduling",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mako",
+    "email": "mito@chronista.club"
+  },
+  "repository": "https://github.com/chronista-club/but-flow",
+  "keywords": [
+    "gitbutler",
+    "branch",
+    "workflow",
+    "parallel-development",
+    "stacked-branches"
+  ]
+}
