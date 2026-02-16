@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate plugin structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin.json
+        run: |
+          echo "--- plugin.json ---"
+          # JSONとして有効か
+          jq . .claude-plugin/plugin.json > /dev/null
+
+          # 必須フィールドの存在確認
+          for field in name version description; do
+            value=$(jq -r ".$field" .claude-plugin/plugin.json)
+            if [ "$value" = "null" ] || [ -z "$value" ]; then
+              echo "ERROR: plugin.json missing required field: $field"
+              exit 1
+            fi
+            echo "  $field: $value"
+          done
+          echo "plugin.json OK"
+
+      - name: Validate skills
+        run: |
+          echo "--- skills.txt ---"
+          while IFS= read -r skill; do
+            [ -z "$skill" ] && continue
+            echo "  Checking skill: $skill"
+
+            # ディレクトリ存在
+            if [ ! -d "$skill" ]; then
+              echo "ERROR: Skill directory not found: $skill/"
+              exit 1
+            fi
+
+            # SKILL.md存在
+            if [ ! -f "$skill/SKILL.md" ]; then
+              echo "ERROR: SKILL.md not found in $skill/"
+              exit 1
+            fi
+
+            # frontmatter の name と description
+            head -20 "$skill/SKILL.md" | grep -q "^name:" || {
+              echo "ERROR: $skill/SKILL.md missing 'name' in frontmatter"
+              exit 1
+            }
+            head -20 "$skill/SKILL.md" | grep -q "^description:" || {
+              echo "ERROR: $skill/SKILL.md missing 'description' in frontmatter"
+              exit 1
+            }
+
+            echo "    $skill OK"
+          done < .claude-plugin/skills.txt
+          echo "All skills valid"
