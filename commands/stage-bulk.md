@@ -82,13 +82,13 @@ After staging:
 
 ```bash
 # Stage entire directory
-/but-flow:stage-bulk backend/libs feature/my-branch
+/cw-flow:stage-bulk backend/libs feature/my-branch
 
 # Stage by pattern
-/but-flow:stage-bulk "**/*.py" feature/python-updates
+/cw-flow:stage-bulk "**/*.py" feature/python-updates
 
 # Interactive mode
-/but-flow:stage-bulk
+/cw-flow:stage-bulk
 ```
 
 ## Error handling
