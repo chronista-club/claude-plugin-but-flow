@@ -1,64 +1,67 @@
-# but-flow
+# cw-flow
 
-A Claude Code plugin for GitButler CLI workflows. Virtual branches, stacked branches, parallel development, task scheduling, and tmux integration.
+Claude Workers（`cw`コマンド）を使った並行開発ワークフローのClaude Codeプラグイン。
+Gitクローンベースのワークスペース分離で、複数セッションを安全に並列実行。
 
-## Install
+## インストール
 
 ```bash
-claude /plugin install https://github.com/chronista-club/claude-plugin-but-flow
+/plugin install chronista-club/cw-flow
 ```
 
-## What it does
-
-**Replaces git with `but`** — blocks raw git write commands and provides GitButler-native workflows.
-
-### Components
-
-| Component | What | Detail |
-|---|---|---|
-| **Skill** | `gitbutler-workflow` | Auto-loaded when branch/PR/scheduling work is detected. 400+ lines of reference documentation. |
-| **Hook: PreToolUse** | git blocker | Intercepts `git checkout/commit/push/...` → forces `but` commands. 36 test cases. |
-| **Hook: SessionStart** | status inject | Runs `but status` at session start, injects branch state into context. |
-| **Command** | `/but-flow:status` | Workspace overview: branches, changes, PRs |
-| **Command** | `/but-flow:plan` | Decompose L/XL tasks into stacked branches |
-| **Command** | `/but-flow:parallel` | Design parallel sessions with conflict validation |
-| **Command** | `/but-flow:batch` | Batch XS/S tasks into single branch |
-| **Command** | `/but-flow:cleanup` | Clean merged branches, health check |
-| **Agent** | `branch-planner` | Analyzes tasks → designs optimal branch strategy |
-| **Agent** | `conflict-checker` | Detects file overlap between active branches |
-
-### Task Scheduling
-
-Built-in XS-XL task sizing with scheduling rules:
+## 概要
 
 ```
-XS (~1 commit)  → batch with other XS/S
-S  (2-5 commits) → batch or standalone
-M  (5-15 commits) → standalone branch
-L  (15-30 commits) → consider decomposition
-XL (30+ commits) → MUST decompose into stacked branches
+メインリポ (~/repos/my-project)    ← 安定。汚さない
+│
+├── cw new issue-42 feature/issue-42
+│   → ~/.cache/creo-workers/issue-42/    ← Agent A
+│
+└── cw new issue-43 feature/issue-43
+    → ~/.cache/creo-workers/issue-43/    ← Agent B
 ```
 
-### Parallel Development
+### コマンド
 
-3-slot pattern: Large + Medium + Small-batch, with file overlap detection and `but mark` for ownership assignment.
+| コマンド | 説明 |
+|---|---|
+| `cw new <name> <branch>` | ワーカー環境を作成（clone + symlink + setup） |
+| `cw ls` | 全ワーカー一覧 |
+| `cw path <name>` | ワーカーのパスを出力 |
+| `cw rm <name>` | ワーカーを削除 |
 
-### tmux Integration
+### ワークフロー
 
-Agent Teams support, split-pane layouts, session persistence, and cross-pane reference.
+```bash
+# 1. ワーカー作成
+cw new issue-42 feature/issue-42
 
-## Prerequisites
+# 2. Claude Codeセッション起動
+cd $(cw path issue-42) && claude
 
-- [GitButler CLI](https://docs.gitbutler.com/cli) (`but` command)
-- [Claude Code](https://code.claude.com) v2.0+
-- Python 3.8+ (for hook scripts)
+# 3. 作業完了 → PR → マージ
+gh pr create ...
 
-## Known Limitations
+# 4. 削除
+cw rm issue-42
+```
 
-See `skills/gitbutler-workflow/references/known-limitations.md` for:
-- Verified behaviors
-- Unverified assumptions (concurrent sessions, Agent Teams + GitButler)
-- Verification TODO checklist
+### worker-files.kdl
+
+各プロジェクトの `.claude/worker-files.kdl` でワーカー環境の設定を定義:
+
+```kdl
+symlink ".env"
+symlink ".mcp.json"
+symlink ".claude/settings.local.json"
+symlink-pattern "**/*.local.*"
+post-setup "bun install"
+```
+
+## 前提
+
+- `cw` コマンド（`~/.cargo/bin/cw`）
+- [Claude Code](https://claude.ai/code)
 
 ## License
 

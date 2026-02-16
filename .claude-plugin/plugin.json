@@ -1,21 +1,18 @@
 {
-  "name": "but-flow",
-  "version": "1.1.0",
-  "description": "GitButler CLI workflow for Claude Code. Virtual branches, stacked branches, parallel development, task scheduling (XS-XL), and tmux integration. Replaces git with but commands.",
+  "name": "cw-flow",
+  "description": "Claude Workers (cw) parallel development workflow - clone-based workspace isolation for safe concurrent Claude Code sessions",
+  "version": "2.0.0",
   "author": {
-    "name": "chronista-club",
-    "url": "https://github.com/chronista-club"
+    "name": "Mako",
+    "email": "mito@chronista.club"
   },
-  "repository": "https://github.com/chronista-club/claude-plugin-but-flow",
+  "repository": "https://github.com/chronista-club/cw-flow",
   "license": "MIT",
   "keywords": [
-    "gitbutler",
-    "but",
-    "virtual-branches",
-    "stacked-branches",
+    "claude-workers",
     "parallel-development",
-    "scheduling",
-    "tmux",
+    "workspace",
+    "clone",
     "workflow"
   ]
 }
