@@ -1,4 +1,4 @@
-# cw-flow
+# cwflow
 
 Claude Workers（`cw`コマンド）を使った並行開発ワークフローのClaude Codeプラグイン。
 Gitクローンベースのワークスペース分離で、複数セッションを安全に並列実行。
@@ -6,7 +6,7 @@ Gitクローンベースのワークスペース分離で、複数セッショ�
 ## インストール
 
 ```bash
-/plugin install chronista-club/cw-flow
+/plugin install chronista-club/claude-plugin-cwflow
 ```
 
 ## 概要

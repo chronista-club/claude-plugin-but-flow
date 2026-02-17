@@ -67,7 +67,7 @@ jobs:
           ### インストール
 
           \`\`\`bash
-          /plugin install chronista-club/cw-flow
+          /plugin install chronista-club/claude-plugin-cwflow
           \`\`\`
           NOTES
 

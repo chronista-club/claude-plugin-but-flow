@@ -1,5 +1,5 @@
 ---
-name: cw-flow
+name: cwflow
 description: >
   Claude Workers（cwコマンド）を使った並行開発ワークフロー。
   Gitクローンベースのワークスペース分離で、複数のClaude Codeセッションを
