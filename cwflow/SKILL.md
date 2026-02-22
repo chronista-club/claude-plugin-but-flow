@@ -25,13 +25,13 @@ description: >
 │  ← 安定。直接作業しない or リーダーのみ
 │
 ├── cw new issue-42 feature/issue-42
-│   → ~/.cache/creo-workers/issue-42/    ← Agent A が作業
+│   → ~/.cache/cw/issue-42/    ← Agent A が作業
 │
 ├── cw new issue-43 feature/issue-43
-│   → ~/.cache/creo-workers/issue-43/    ← Agent B が作業
+│   → ~/.cache/cw/issue-43/    ← Agent B が作業
 │
 └── cw new hotfix-1 fix/urgent-bug
-    → ~/.cache/creo-workers/hotfix-1/    ← Agent C が作業
+    → ~/.cache/cw/hotfix-1/    ← Agent C が作業
 ```
 
 各ワーカーは:
@@ -200,7 +200,7 @@ cw rm issue-42
 
 1. カレントディレクトリのgitリポを検出（`git rev-parse --show-toplevel`）
 2. `origin` URLを取得（`git remote get-url origin`）
-3. `~/.cache/creo-workers/<name>/` に shallow clone（`--depth 1`）
+3. `~/.cache/cw/<name>/` に shallow clone（`--depth 1`）
 4. リモートURLをGitHub URLに設定
 5. `.claude/worker-files.kdl` を読んでsymlink/copy を配置
 6. 指定ブランチを作成
@@ -216,13 +216,51 @@ cw rm issue-42
 
 ## ストレージ
 
-ワーカー環境は `~/.cache/creo-workers/` に配置される。
+ワーカー環境は `~/.cache/cw/` に配置される。
 
 ```bash
-~/.cache/creo-workers/
+~/.cache/cw/
 ├── issue-42/     # feature/issue-42 ブランチ
 ├── issue-43/     # feature/issue-43 ブランチ
 └── hotfix-1/     # fix/urgent-bug ブランチ
 ```
 
 ディスク使用量が気になる場合は `cw rm --all` で一括削除。
+
+## clone vs worktree の使い分け
+
+Claude Code には2つのワークスペース分離方法がある:
+
+| 方式 | cw (clone) | EnterWorktree (CC標準) |
+|------|-----------|----------------------|
+| 仕組み | `git clone --depth 1` | `.claude/worktrees/` に git worktree |
+| 容量 | 100-500MB（完全コピー） | 軽量（.git 共有） |
+| 独立性 | 完全独立（別 .git） | .git 共有（lock 競合の可能性） |
+| secrets | symlink で元リポと共有 | 元リポと完全共有 |
+| 適用場面 | 長期並列開発、複数人/agent | 短期的な isolated 作業 |
+| 削除 | `cw rm` | セッション終了時に自動削除 |
+
+### 推奨
+
+- **並列開発（複数 agent）** → `cw` を使う。完全独立で安全
+- **単独の isolated 作業** → `EnterWorktree` で十分。軽量で手軽
+- **CI/CD 連携** → `cw` を使う。ディレクトリパスが予測可能
+
+## コンテキスト制限への対策
+
+長時間タスクでは Claude Code のコンテキストが圧縮され、初期の指示を忘れる可能性がある。
+
+### 対策
+
+1. **タスクを小さく分割**: 1 ワーカー = 1 PR = 短時間で完了
+2. **creo-memories に中間記録**: 重要な決定・進捗を `remember()` で記録
+3. **CLAUDE.md に指示を記載**: コンテキスト圧縮後も残る永続的な指示
+4. **ccwire でリーダーに報告**: 定期的に `wire_send` で進捗報告 → リーダーが全体把握
+
+### 推奨ワーカー作業時間
+
+| 規模 | 目安 | コンテキスト圧縮リスク |
+|------|------|---------------------|
+| S | ~30分 | 低 |
+| M | ~1時間 | 中（中間記録推奨） |
+| L | ~2時間 | 高（分割を強く推奨） |

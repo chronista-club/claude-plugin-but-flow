@@ -15,10 +15,10 @@ Gitクローンベースのワークスペース分離で、複数セッショ�
 メインリポ (~/repos/my-project)    ← 安定。汚さない
 │
 ├── cw new issue-42 feature/issue-42
-│   → ~/.cache/creo-workers/issue-42/    ← Agent A
+│   → ~/.cache/cw/issue-42/    ← Agent A
 │
 └── cw new issue-43 feature/issue-43
-    → ~/.cache/creo-workers/issue-43/    ← Agent B
+    → ~/.cache/cw/issue-43/    ← Agent B
 ```
 
 ### コマンド

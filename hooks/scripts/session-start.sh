@@ -27,7 +27,7 @@ fi
 # 現在のディレクトリがワーカー環境内かどうか判定
 CURRENT_DIR=$(pwd)
 IN_WORKER=""
-if echo "$CURRENT_DIR" | grep -q "creo-workers"; then
+if echo "$CURRENT_DIR" | grep -q "/.cache/cw/"; then
   IN_WORKER="true"
 fi
 

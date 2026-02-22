@@ -1,39 +1,60 @@
 ---
-description: GitHub Issueからワーカー環境を作成。Issue番号を指定すると、名前とブランチを自動決定。
+description: ワーカー環境を作成。Issue番号を指定すると自動命名、自由なタスク名でもOK。
 ---
 
-# CW New — Issue連携ワーカー作成
+# CW New — ワーカー作成
 
 ## 手順
 
-1. ユーザーに確認:
-   - Issue番号が指定されている場合 → そのIssueの情報を取得
-   - 指定がない場合 → `gh issue list -l next --json number,title,labels --limit 10` で候補を表示し選択を促す
+1. ユーザーの指定を判定:
 
-2. Issueの情報から名前とブランチを自動生成:
+   **A) Issue番号が指定された場合** → Issue 連携モード
+   - `gh issue view <number> --json number,title,labels` で情報取得
    - ワーカー名: `issue-<number>` （例: `issue-42`）
-   - ブランチ名: `feature/issue-<number>` （例: `feature/issue-42`）
-   - Issueタイトルにbug/fixが含まれる場合: `fix/issue-<number>`
+   - ブランチ名: `feature/issue-<number>` （bug/fix系なら `fix/issue-<number>`）
 
-3. 実行前に確認を表示:
+   **B) タスク名が直接指定された場合** → フリーモード
+   - ワーカー名: そのまま使用（例: `auth-refactor`, `experiment-new-api`）
+   - ブランチ名: `feature/<name>` （例: `feature/auth-refactor`）
+
+   **C) 何も指定されない場合** → 選択を促す
+   - `gh issue list -l next --json number,title,labels --limit 10` で Issue 候補を表示
+   - 「Issue番号を選ぶか、自由なタスク名を入力してください」と案内
+
+2. 実行前に確認を表示:
    ```
-   Issue:  #42 - ユーザー認証の追加
-   Worker: issue-42
-   Branch: feature/issue-42
-   Path:   ~/.cache/creo-workers/issue-42/
+   Worker: auth-refactor  (リポ名自動prefix: nexus-auth-refactor)
+   Branch: feature/auth-refactor
+   Path:   ~/.cache/cw/nexus-auth-refactor/
 
    作成しますか？
    ```
 
-4. `cw new <name> <branch>` を実行
+3. `cw new <name> <branch>` を実行
+   - cw が自動的にリポ名を prefix する（例: `auth-refactor` → `nexus-auth-refactor`）
 
-5. 成功したら:
+4. 成功したら:
    - ワーカーのパスを表示
-   - 「`cd $(cw path issue-42) && claude` でセッションを開始できます」と案内
+   - 「`cd $(cw path <name>) && claude` でセッションを開始できます」と案内
 
 ## 引数
 
-- `<issue-number>`: GitHub Issue番号（省略時は一覧から選択）
+- `<issue-number>`: GitHub Issue番号（省略可）
+- `<task-name>`: 自由なタスク名（省略可、Issue番号と排他）
+
+## 使用例
+
+```bash
+# Issue連携
+/cwflow:new 42
+
+# フリーモード
+/cwflow:new auth-refactor
+/cwflow:new experiment-streaming
+
+# 対話選択
+/cwflow:new
+```
 
 ## 注意
 
