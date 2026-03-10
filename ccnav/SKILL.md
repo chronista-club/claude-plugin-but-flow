@@ -44,6 +44,7 @@ description: >
 | コマンド | 説明 |
 |---|---|
 | `ccws new <name> <branch>` | ワーカー環境を作成（clone + symlink + setup） |
+| `ccws fork <name> <branch> [--force]` | dirty state（未コミット変更）を含めてワーカー環境をフォーク |
 | `ccws ls` | 全ワーカー一覧（名前、ブランチ、パス） |
 | `ccws path <name>` | ワーカーのパスを出力 |
 | `ccws rm <name>` | ワーカーを削除 |
